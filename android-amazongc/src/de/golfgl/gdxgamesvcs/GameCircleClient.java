@@ -22,10 +22,13 @@ import com.badlogic.gdx.utils.Base64Coder;
 import java.util.EnumSet;
 
 import de.golfgl.gdxgamesvcs.achievement.IFetchAchievementsResponseListener;
+import de.golfgl.gdxgamesvcs.country.ICountryCodeResponseListener;
+import de.golfgl.gdxgamesvcs.friend.IFriendsDataResponseListener;
 import de.golfgl.gdxgamesvcs.gamestate.IFetchGameStatesListResponseListener;
 import de.golfgl.gdxgamesvcs.gamestate.ILoadGameStateResponseListener;
 import de.golfgl.gdxgamesvcs.gamestate.ISaveGameStateResponseListener;
 import de.golfgl.gdxgamesvcs.leaderboard.IFetchLeaderBoardEntriesResponseListener;
+import de.golfgl.gdxgamesvcs.player.IPlayerDataResponseListener;
 
 /**
  * Client implementation for Amazon GameCircle
@@ -170,6 +173,10 @@ public class GameCircleClient implements IGameServiceClient {
         return GS_CLIENT_ID;
     }
 
+    @Override public String getServerAuthCode() {
+        return "";
+    }
+
     @Override
     public void setListener(IGameServiceListener gsListener) {
         this.gsListener = gsListener;
@@ -243,6 +250,11 @@ public class GameCircleClient implements IGameServiceClient {
     }
 
     @Override
+    public boolean getPlayerData(IPlayerDataResponseListener callback) {
+        return false;
+    }
+
+    @Override
     public boolean isSessionActive() {
         return agsClient != null && AmazonGamesClient.isInitialized() && isConnected && !isConnectionPending;
     }
@@ -271,9 +283,20 @@ public class GameCircleClient implements IGameServiceClient {
             throw new GameServiceException.NoSessionException();
     }
 
+    @Override public void showFriends(IFriendsDataResponseListener callback) throws GameServiceException {
+
+    }
+
+    @Override public void showPlayerProfile(String playerId) throws GameServiceException {
+
+    }
+
+    @Override public void showPlayerProfileWithHints(String otherPlayerId, String otherPlayerInGameName, String currentPlayerInGameName) throws GameServiceException {
+
+    }
+
     @Override
     public boolean fetchAchievements(IFetchAchievementsResponseListener callback) {
-        //TODO supported by GameCircle
         throw new UnsupportedOperationException();
     }
 
@@ -287,9 +310,20 @@ public class GameCircleClient implements IGameServiceClient {
     }
 
     @Override
+    public boolean incrementLeaderboard(String leaderboardId, long score) {
+        return false;
+    }
+
+    @Override
     public boolean fetchLeaderboardEntries(String leaderBoardId, int limit, boolean relatedToPlayer,
                                            IFetchLeaderBoardEntriesResponseListener callback) {
-        //TODO supported by GameCircle
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean fetchLeaderboardEntries(String leaderBoardId, int limit, boolean relatedToPlayer,
+                                           IFetchLeaderBoardEntriesResponseListener callback,
+                                           int timespan, int collection) {
         throw new UnsupportedOperationException();
     }
 
@@ -370,14 +404,16 @@ public class GameCircleClient implements IGameServiceClient {
 
     @Override
     public boolean deleteGameState(String fileId, ISaveGameStateResponseListener success) {
-        //TODO supported by GameCircle
         throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean fetchGameStates(IFetchGameStatesListResponseListener callback) {
-        //TODO supported by GameCircle
         throw new UnsupportedOperationException();
+    }
+
+    @Override public void fetchCountryCode(ICountryCodeResponseListener callback) {
+
     }
 
     @Override
@@ -424,5 +460,6 @@ public class GameCircleClient implements IGameServiceClient {
             return true;
         }
     }
+
 
 }

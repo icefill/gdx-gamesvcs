@@ -17,11 +17,14 @@ import java.util.Map;
 
 import de.golfgl.gdxgamesvcs.achievement.IAchievement;
 import de.golfgl.gdxgamesvcs.achievement.IFetchAchievementsResponseListener;
+import de.golfgl.gdxgamesvcs.country.ICountryCodeResponseListener;
+import de.golfgl.gdxgamesvcs.friend.IFriendsDataResponseListener;
 import de.golfgl.gdxgamesvcs.gamestate.IFetchGameStatesListResponseListener;
 import de.golfgl.gdxgamesvcs.gamestate.ILoadGameStateResponseListener;
 import de.golfgl.gdxgamesvcs.gamestate.ISaveGameStateResponseListener;
 import de.golfgl.gdxgamesvcs.leaderboard.IFetchLeaderBoardEntriesResponseListener;
 import de.golfgl.gdxgamesvcs.leaderboard.ILeaderBoardEntry;
+import de.golfgl.gdxgamesvcs.player.IPlayerDataResponseListener;
 
 /**
  * GameServiceClient for GameJolt API
@@ -76,7 +79,7 @@ public class GameJoltClient implements IGameServiceClient {
     /**
      * sets up the mapper for score table calls
      *
-     * @param scoreTableMapper
+     * @param scoreTableMapper Id mapper
      * @return this for method chaining
      */
     public GameJoltClient setGjScoreTableMapper(IGameServiceIdMapper<Integer> scoreTableMapper) {
@@ -87,7 +90,7 @@ public class GameJoltClient implements IGameServiceClient {
     /**
      * sets up the mapper for trophy calls
      *
-     * @param trophyMapper
+     * @param trophyMapper Id mapper
      * @return this for method chaining
      */
     public GameJoltClient setGjTrophyMapper(IGameServiceIdMapper<Integer> trophyMapper) {
@@ -103,8 +106,8 @@ public class GameJoltClient implements IGameServiceClient {
     /**
      * Sets the GameJolt user token. Not possible when connected!
      *
-     * @param userToken
-     * @return
+     * @param userToken The user token
+     * @return this for method chaining
      */
     public GameJoltClient setUserToken(String userToken) {
         if (isSessionActive())
@@ -117,8 +120,8 @@ public class GameJoltClient implements IGameServiceClient {
     /**
      * Sets the GameJolt user name. Not possible when connected!
      *
-     * @param userName
-     * @return
+     * @param userName The username
+     * @return this for method chaining
      */
     public GameJoltClient setUserName(String userName) {
         if (isSessionActive())
@@ -131,7 +134,7 @@ public class GameJoltClient implements IGameServiceClient {
     /**
      * see {@link #setGuestName(String)}
      *
-     * @return
+     * @return String that represents a guest name
      */
     public String getGuestName() {
         return guestName;
@@ -140,7 +143,9 @@ public class GameJoltClient implements IGameServiceClient {
     /**
      * GameJolt can post scores to scoreboards without an authenticated user. Set a guest name to enable this featuee.
      *
-     * @param guestName
+     * @param guestName String that represents a guest name
+     *
+     * @return this for method chaining
      */
     public GameJoltClient setGuestName(String guestName) {
         this.guestName = guestName;
@@ -151,6 +156,10 @@ public class GameJoltClient implements IGameServiceClient {
     @Override
     public String getGameServiceId() {
         return GAMESERVICE_ID;
+    }
+
+    @Override public String getServerAuthCode() {
+        return "";
     }
 
     @Override
@@ -332,6 +341,11 @@ public class GameJoltClient implements IGameServiceClient {
     }
 
     @Override
+    public boolean getPlayerData(IPlayerDataResponseListener callback) {
+        return false;
+    }
+
+    @Override
     public boolean isSessionActive() {
         return connected;
     }
@@ -349,6 +363,18 @@ public class GameJoltClient implements IGameServiceClient {
     @Override
     public void showAchievements() throws GameServiceException {
         throw new GameServiceException.NotSupportedException();
+    }
+
+    @Override public void showFriends(IFriendsDataResponseListener callback) throws GameServiceException {
+
+    }
+
+    @Override public void showPlayerProfile(String playerId) throws GameServiceException {
+
+    }
+
+    @Override public void showPlayerProfileWithHints(String otherPlayerId, String otherPlayerInGameName, String currentPlayerInGameName) throws GameServiceException {
+
     }
 
     @Override
@@ -461,6 +487,11 @@ public class GameJoltClient implements IGameServiceClient {
     }
 
     @Override
+    public boolean incrementLeaderboard(String leaderboardId, long score) {
+        return false;
+    }
+
+    @Override
     public boolean fetchLeaderboardEntries(String leaderBoardId, int limit, boolean relatedToPlayer,
                                            final IFetchLeaderBoardEntriesResponseListener callback) {
         if (!initialized) {
@@ -477,8 +508,10 @@ public class GameJoltClient implements IGameServiceClient {
 
         params.put("limit", String.valueOf(limit));
 
+        Integer boardId = 0;
+
         if (leaderBoardId != null) {
-            Integer boardId = scoreTableMapper.mapToGsId(leaderBoardId);
+            boardId = scoreTableMapper.mapToGsId(leaderBoardId);
             if (boardId != null)
                 params.put("table_id", String.valueOf(boardId));
         }
@@ -486,6 +519,8 @@ public class GameJoltClient implements IGameServiceClient {
         final Net.HttpRequest http = buildJsonRequest("scores/", params);
         if (http == null)
             return false;
+
+        final Integer finalBoardId = boardId;
 
         Gdx.net.sendHttpRequest(http, new Net.HttpResponseListener() {
             @Override
@@ -498,7 +533,7 @@ public class GameJoltClient implements IGameServiceClient {
 
                     if (response == null || !response.getBoolean("success")) {
                         Gdx.app.error(GAMESERVICE_ID, "Could not parse answer from GameJolt: " + json);
-                        callback.onLeaderBoardResponse(null);
+                        callback.onLeaderBoardResponse(finalBoardId.toString(),null);
                     } else {
                         JsonValue scores = response.get("scores");
                         int rank = 0;
@@ -509,30 +544,42 @@ public class GameJoltClient implements IGameServiceClient {
                             if (gje != null)
                                 les.add(gje);
                         }
-                        callback.onLeaderBoardResponse(les);
+                        callback.onLeaderBoardResponse(finalBoardId.toString(), les);
                     }
                 } catch (Throwable t) {
                     Gdx.app.error(GAMESERVICE_ID, "Could not parse answer from GameJolt: " + json, t);
-                    callback.onLeaderBoardResponse(null);
+                    callback.onLeaderBoardResponse(finalBoardId.toString(),null);
                 }
             }
 
             @Override
             public void failed(Throwable t) {
-                callback.onLeaderBoardResponse(null);
+                callback.onLeaderBoardResponse(finalBoardId.toString(), null);
             }
 
             @Override
             public void cancelled() {
-                callback.onLeaderBoardResponse(null);
+                callback.onLeaderBoardResponse(finalBoardId.toString(), null);
             }
         });
 
         return true;
     }
 
+    @Override
+    public boolean fetchLeaderboardEntries(String leaderBoardId, int limit, boolean relatedToPlayer,
+                                           final IFetchLeaderBoardEntriesResponseListener callback,
+                                           int timespan, int collection) {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * converts GameJolt's scoreboard return json to our own data type. This method is for overriding purposes
+     *
+     * @param rank rank of the player
+     * @param score score value
+     *
+     * @return A leaderboard entry
      */
     protected ILeaderBoardEntry scoreJsonToObject(int rank, JsonValue score) {
         return GjScoreboardEntry.fromJson(score, rank, getPlayerDisplayName());
@@ -541,7 +588,7 @@ public class GameJoltClient implements IGameServiceClient {
     /**
      * see {@link #getEventKeyPrefix()}
      *
-     * @return
+     * @return event key prefix
      */
     public String getEventKeyPrefix() {
         return eventKeyPrefix;
@@ -561,6 +608,7 @@ public class GameJoltClient implements IGameServiceClient {
      *
      * @param eventKeyPrefix Your prefix for event keys, or null to deactivate using global data storage for events.
      *                       Default is null.
+     * @return Instance of GameJoltClient for method chaining.
      */
     public GameJoltClient setEventKeyPrefix(String eventKeyPrefix) {
         this.eventKeyPrefix = eventKeyPrefix;
@@ -599,8 +647,8 @@ public class GameJoltClient implements IGameServiceClient {
     /**
      * Use careful! It resets your event to 0. Needed for first time initialization.
      *
-     * @param eventId
-     */
+     * @param eventId event to reset
+     **/
     public void initializeOrResetEventKey(String eventId) {
         if (!initialized) {
             Gdx.app.error(GAMESERVICE_ID, "Cannot submit event: set app ID via initialize() first");
@@ -703,6 +751,10 @@ public class GameJoltClient implements IGameServiceClient {
 
     /**
      * Helper method when just interested if GameJolt request was successful
+     *
+     * @param json String to parse
+     *
+     * @return boolean that represents whether or not the response was a success
      */
     protected boolean parseSuccessFromResponse(String json) {
         JsonValue response = null;
@@ -818,6 +870,10 @@ public class GameJoltClient implements IGameServiceClient {
         return true;
     }
 
+    @Override public void fetchCountryCode(ICountryCodeResponseListener callback) {
+
+    }
+
     @Override
     public boolean isFeatureSupported(GameServiceFeature feature) {
         switch (feature) {
@@ -837,6 +893,12 @@ public class GameJoltClient implements IGameServiceClient {
 
     /**
      * content must be without special chars ampersand or question mark - use Base64 when not sure!
+     *
+     * @param dataKey data key used in the operation
+     * @param globalKey global key used in the operation
+     * @param content content of the request
+     *
+     * @return a HTTP request object
      */
     protected Net.HttpRequest buildStoreDataRequest(String dataKey, boolean globalKey, String content) {
         Map<String, String> params = new HashMap<String, String>();
@@ -902,6 +964,11 @@ public class GameJoltClient implements IGameServiceClient {
 
     /**
      * Load data is done with dump format
+     *
+     * @param dataKey Data key of the request
+     * @param globalKey Global key boolean
+     *
+     * @return A HTTP request object
      */
     protected Net.HttpRequest buildLoadDataRequest(String dataKey, boolean globalKey) {
         Map<String, String> params = new HashMap<String, String>();

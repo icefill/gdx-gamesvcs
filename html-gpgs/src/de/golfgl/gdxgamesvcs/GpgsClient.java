@@ -9,10 +9,13 @@ import com.badlogic.gdx.utils.Timer;
 import java.util.HashMap;
 
 import de.golfgl.gdxgamesvcs.achievement.IFetchAchievementsResponseListener;
+import de.golfgl.gdxgamesvcs.country.ICountryCodeResponseListener;
+import de.golfgl.gdxgamesvcs.friend.IFriendsDataResponseListener;
 import de.golfgl.gdxgamesvcs.gamestate.IFetchGameStatesListResponseListener;
 import de.golfgl.gdxgamesvcs.gamestate.ILoadGameStateResponseListener;
 import de.golfgl.gdxgamesvcs.gamestate.ISaveGameStateResponseListener;
 import de.golfgl.gdxgamesvcs.leaderboard.IFetchLeaderBoardEntriesResponseListener;
+import de.golfgl.gdxgamesvcs.player.IPlayerDataResponseListener;
 
 /**
  * Gpgs Web REST Client
@@ -51,7 +54,7 @@ public class GpgsClient implements IGameServiceClient {
     /**
      * sets up the mapper for leader board ids
      *
-     * @param gpgsLeaderboardIdMapper
+     * @param gpgsLeaderboardIdMapper mapper that maps a given constant to a leaderboard id
      * @return this for method chaining
      */
     public GpgsClient setGpgsLeaderboardIdMapper(IGameServiceIdMapper<String> gpgsLeaderboardIdMapper) {
@@ -62,7 +65,7 @@ public class GpgsClient implements IGameServiceClient {
     /**
      * sets up the mapper for leader achievement ids
      *
-     * @param gpgsAchievementIdMapper
+     * @param gpgsAchievementIdMapper mapper that maps a given constant to a achievment id
      * @return this for method chaining
      */
     public GpgsClient setGpgsAchievementIdMapper(IGameServiceIdMapper<String> gpgsAchievementIdMapper) {
@@ -73,6 +76,10 @@ public class GpgsClient implements IGameServiceClient {
     @Override
     public String getGameServiceId() {
         return GAMESERVICE_ID;
+    }
+
+    @Override public String getServerAuthCode() {
+        return "";
     }
 
     @Override
@@ -328,6 +335,11 @@ public class GpgsClient implements IGameServiceClient {
     }
 
     @Override
+    public boolean getPlayerData(IPlayerDataResponseListener callback) {
+        return false;
+    }
+
+    @Override
     public boolean isSessionActive() {
         return initialized && isSignedIn();
     }
@@ -351,6 +363,18 @@ public class GpgsClient implements IGameServiceClient {
         throw new GameServiceException.NotSupportedException();
     }
 
+    @Override public void showFriends(IFriendsDataResponseListener callback) throws GameServiceException {
+
+    }
+
+    @Override public void showPlayerProfile(String playerId) throws GameServiceException {
+
+    }
+
+    @Override public void showPlayerProfileWithHints(String otherPlayerId, String otherPlayerInGameName, String currentPlayerInGameName) throws GameServiceException {
+
+    }
+
     @Override
     public boolean fetchAchievements(IFetchAchievementsResponseListener callback) {
         //TODO
@@ -367,6 +391,11 @@ public class GpgsClient implements IGameServiceClient {
             return true;
         } else
             return false;
+    }
+
+    @Override
+    public boolean incrementLeaderboard(String leaderboardId, long score) {
+        return false;
     }
 
     private native void nativeSubmitScore(String leaderboardId, double scoreVar, String tag) /*-{
@@ -390,8 +419,14 @@ public class GpgsClient implements IGameServiceClient {
     @Override
     public boolean fetchLeaderboardEntries(String leaderBoardId, int limit, boolean relatedToPlayer,
                                            IFetchLeaderBoardEntriesResponseListener callback) {
-        //TODO
-        return false;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean fetchLeaderboardEntries(String leaderBoardId, int limit, boolean relatedToPlayer,
+                                           IFetchLeaderBoardEntriesResponseListener callback,
+                                           int timespan, int collection) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -567,8 +602,8 @@ public class GpgsClient implements IGameServiceClient {
 
     /**
      * gets the real download url and calls downloadFileFromDrive, or the response listener
-     * @param driveFileId
-     * @param responseListener
+     * @param driveFileId the drive file id
+     * @param responseListener the listener that will be notified about the result
      */
     protected native void loadFileFromDrive(String driveFileId, final ILoadGameStateResponseListener responseListener) /*-{
         var that=this;
@@ -610,8 +645,8 @@ public class GpgsClient implements IGameServiceClient {
     /**
      * this can be used instead of loadFileFromDrive/downloadFileFromDrive... but it does not work on Firefox
      * Firefox does not follow a redirect that is given back to the real download url
-     * @param driveFileId
-     * @param responseListener
+     * @param driveFileId the drive file id
+     * @param responseListener the listener that will be notified about the result
      */
     protected void loadFileFromDriveV3(String driveFileId, final ILoadGameStateResponseListener responseListener) {
         Net.HttpRequest httpRequest = new Net.HttpRequest(Net.HttpMethods.GET);
@@ -695,6 +730,10 @@ public class GpgsClient implements IGameServiceClient {
             return false;
         }
         return true;
+    }
+
+    @Override public void fetchCountryCode(ICountryCodeResponseListener callback) {
+
     }
 
     private native void nativeFetchGameStates(IFetchGameStatesListResponseListener callback) /*-{

@@ -1,6 +1,6 @@
 ext {
     GROUPID = 'de.golfgl.gdxgamesvcs'
-    VERSION = '1.1.0'
+    VERSION = '1.1.2'
 }
 
 buildscript {
@@ -23,12 +23,12 @@ allprojects {
     apply plugin: "idea"
 
     ext {
-        minSdkVer = 16
-        targetSdkVer = 30
-        compileSdkVer = 30
-        buildToolsVer = '30.0.2'
+        minSdkVer = 19
+        targetSdkVer = 34
+        compileSdkVer = 34
+        buildToolsVer = '34.0.1'
 
-        gdxVersion = '1.9.8'
+        gdxVersion = '1.12.1'
         roboVMVersion = '2.3.5'
 
         //Variables used in publishing step

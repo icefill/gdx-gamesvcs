@@ -31,11 +31,14 @@ import de.golfgl.gdxgamesvcs.GameServiceException.NotSupportedException;
 import de.golfgl.gdxgamesvcs.IGameServiceListener.GsErrorType;
 import de.golfgl.gdxgamesvcs.achievement.IAchievement;
 import de.golfgl.gdxgamesvcs.achievement.IFetchAchievementsResponseListener;
+import de.golfgl.gdxgamesvcs.country.ICountryCodeResponseListener;
+import de.golfgl.gdxgamesvcs.friend.IFriendsDataResponseListener;
 import de.golfgl.gdxgamesvcs.gamestate.IFetchGameStatesListResponseListener;
 import de.golfgl.gdxgamesvcs.gamestate.ILoadGameStateResponseListener;
 import de.golfgl.gdxgamesvcs.gamestate.ISaveGameStateResponseListener;
 import de.golfgl.gdxgamesvcs.leaderboard.IFetchLeaderBoardEntriesResponseListener;
 import de.golfgl.gdxgamesvcs.leaderboard.ILeaderBoardEntry;
+import de.golfgl.gdxgamesvcs.player.IPlayerDataResponseListener;
 
 /**
  * Google Play Games Services Desktop implementation based on REST API :
@@ -141,6 +144,11 @@ public class GpgsClient implements IGameServiceClient {
     }
 
     @Override
+    public String getServerAuthCode() {
+        return null;
+    }
+
+    @Override
     public void setListener(IGameServiceListener gsListener) {
         gameListener = gsListener;
     }
@@ -213,8 +221,10 @@ public class GpgsClient implements IGameServiceClient {
      * Initialize with a clientSecretFile.
      * see {@link #initialize(String, InputStream, boolean)}
      *
-     * @param applicationName
-     * @param clientSecretFile
+     * @param applicationName name of the application
+     * @param clientSecretFile client secret file containing the secrets needed to connect
+     * @param enableDriveAPI whether or not to enable drive API
+     *
      * @return method chaining
      */
     public GpgsClient initialize(String applicationName, FileHandle clientSecretFile, boolean enableDriveAPI) {
@@ -225,7 +235,7 @@ public class GpgsClient implements IGameServiceClient {
     /**
      * sets up the mapper for leader board ids
      *
-     * @param gpgsLeaderboardIdMapper
+     * @param gpgsLeaderboardIdMapper id mapper
      * @return this for method chaining
      */
     public GpgsClient setGpgsLeaderboardIdMapper(IGameServiceIdMapper<String> gpgsLeaderboardIdMapper) {
@@ -236,7 +246,7 @@ public class GpgsClient implements IGameServiceClient {
     /**
      * sets up the mapper for leader achievement ids
      *
-     * @param gpgsAchievementIdMapper
+     * @param gpgsAchievementIdMapper id mapper
      * @return this for method chaining
      */
     public GpgsClient setGpgsAchievementIdMapper(IGameServiceIdMapper<String> gpgsAchievementIdMapper) {
@@ -246,7 +256,9 @@ public class GpgsClient implements IGameServiceClient {
 
     /**
      * Try to authorize user. This method is blocking until user accept
-     * autorization.
+     * authorization.
+     *
+     * @param silent boolean to determine whether to do the sign in silently
      */
     private void waitForUserAuthorization(boolean silent) {
         // load user token or open browser for user authorizations.
@@ -334,6 +346,11 @@ public class GpgsClient implements IGameServiceClient {
     }
 
     @Override
+    public boolean getPlayerData(IPlayerDataResponseListener callback) {
+        return false;
+    }
+
+    @Override
     public boolean isSessionActive() {
         return connected;
     }
@@ -354,6 +371,21 @@ public class GpgsClient implements IGameServiceClient {
     }
 
     @Override
+    public void showFriends(IFriendsDataResponseListener callback) throws GameServiceException {
+        throw new NotSupportedException();
+    }
+
+    @Override
+    public void showPlayerProfile(String playerId) throws GameServiceException {
+        throw new NotSupportedException();
+    }
+
+    @Override
+    public void showPlayerProfileWithHints(String otherPlayerId, String otherPlayerInGameName, String currentPlayerInGameName) throws GameServiceException {
+        throw new NotSupportedException();
+    }
+
+    @Override
     public boolean submitToLeaderboard(final String leaderboardId, final long score, final String tag) {
         if (connected) {
             background(new SafeRunnable() {
@@ -366,13 +398,18 @@ public class GpgsClient implements IGameServiceClient {
         return connected;
     }
 
+    @Override
+    public boolean incrementLeaderboard(String leaderboardId, long score) {
+        return false;
+    }
+
     /**
      * Blocking version of {@link #submitToLeaderboard(String, long, String)}
      *
-     * @param leaderboardId
-     * @param score
-     * @param tag
-     * @throws IOException
+     * @param leaderboardId the leaderboard id to submit the score to
+     * @param score score value to submit
+     * @param tag optional tag thats attached to the score entry
+     * @throws IOException on error cases throws an IOException
      */
     public void submitToLeaderboardSync(String leaderboardId, long score, String tag) throws IOException {
         if (gpgsLeaderboardIdMapper != null)
@@ -398,8 +435,8 @@ public class GpgsClient implements IGameServiceClient {
     /**
      * Blocking version of {@link #submitEvent(String, int)}
      *
-     * @param eventId
-     * @param increment
+     * @param eventId event Id
+     * @param increment increment value to use
      */
     public void submitEventSync(String eventId, int increment) {
         // TODO don't know the API for this use case
@@ -422,8 +459,8 @@ public class GpgsClient implements IGameServiceClient {
     /**
      * Blocking version of {@link #unlockAchievement(String)}
      *
-     * @param achievementId
-     * @throws IOException
+     * @param achievementId achievment Id to unlock
+     * @throws IOException on error cases throws an IOException
      */
     public void unlockAchievementSync(String achievementId) throws IOException {
         if (gpgsAchievementIdMapper != null)
@@ -450,10 +487,10 @@ public class GpgsClient implements IGameServiceClient {
     /**
      * Blocking version of {@link #incrementAchievement(String, int, float)}
      *
-     * @param achievementId
-     * @param incNum
-     * @param completionPercentage
-     * @throws IOException
+     * @param achievementId achievment id to increment
+     * @param incNum increment amount
+     * @param completionPercentage completion percentage
+     * @throws IOException on error cases throws an IOException
      */
     public void incrementAchievementSync(String achievementId, int incNum, float completionPercentage) throws
             IOException {
@@ -485,11 +522,16 @@ public class GpgsClient implements IGameServiceClient {
         return connected;
     }
 
+    @Override
+    public void fetchCountryCode(ICountryCodeResponseListener callback) {
+
+    }
+
     /**
      * Blocking version of {@link #fetchGameStatesSync()}
      *
      * @return game states
-     * @throws IOException
+     * @throws IOException on error cases throws an IOException
      */
     public Array<String> fetchGameStatesSync() throws IOException {
 
@@ -593,10 +635,10 @@ public class GpgsClient implements IGameServiceClient {
     /**
      * Blocking version of {@link #saveGameState(String, byte[], long, ISaveGameStateResponseListener)}
      *
-     * @param fileId
-     * @param gameState
-     * @param progressValue
-     * @throws IOException
+     * @param fileId file Id for the save
+     * @param gameState byte array containing the save state
+     * @param progressValue progress value of the game state
+     * @throws IOException on error cases throws an IOException
      */
     public void saveGameStateSync(String fileId, byte[] gameState, long progressValue) throws IOException {
 
@@ -663,9 +705,9 @@ public class GpgsClient implements IGameServiceClient {
     /**
      * Blocking version of {@link #loadGameState(String, ILoadGameStateResponseListener)}
      *
-     * @param fileId
+     * @param fileId file id of the game state
      * @return game state data
-     * @throws IOException
+     * @throws IOException on error cases throws an IOException
      */
     public byte[] loadGameStateSync(String fileId) throws IOException {
 
@@ -707,7 +749,7 @@ public class GpgsClient implements IGameServiceClient {
      * Blocking version of {@link #fetchAchievements(IFetchAchievementsResponseListener)}
      *
      * @return the achievement list
-     * @throws IOException
+     * @throws IOException on error cases throws an IOException
      */
     public Array<IAchievement> fetchAchievementsSync() throws IOException {
 
@@ -761,8 +803,9 @@ public class GpgsClient implements IGameServiceClient {
     }
 
     @Override
-    public boolean fetchLeaderboardEntries(final String leaderBoardId, final int limit, final boolean
-            relatedToPlayer, final IFetchLeaderBoardEntriesResponseListener callback) {
+    public boolean fetchLeaderboardEntries(final String leaderBoardId, final int limit,
+                                           final boolean relatedToPlayer,
+                                           final IFetchLeaderBoardEntriesResponseListener callback) {
         if (connected) {
             background(new SafeRunnable() {
                 @Override
@@ -771,7 +814,7 @@ public class GpgsClient implements IGameServiceClient {
                     try {
                         result = fetchLeaderboardSync(leaderBoardId, limit, relatedToPlayer, false);
                     } finally {
-                        callback.onLeaderBoardResponse(result);
+                        callback.onLeaderBoardResponse(leaderBoardId, result);
                     }
                 }
             });
@@ -779,12 +822,25 @@ public class GpgsClient implements IGameServiceClient {
         return connected;
     }
 
+    @Override
+    public boolean fetchLeaderboardEntries(final String leaderBoardId, final int limit,
+                                           final boolean relatedToPlayer,
+                                           final IFetchLeaderBoardEntriesResponseListener callback,
+                                           final int timespan, final int collection) {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Blocking version of
-     * {@link #fetchLeaderboardEntries(String, int, boolean, IFetchLeaderBoardEntriesResponseListener)}
+     * {@link #fetchLeaderboardEntries(String, int, boolean, IFetchLeaderBoardEntriesResponseListener, int, int)}
      *
-     * @param leaderBoardId
-     * @throws IOException
+     * @param leaderBoardId leaderboard id used for data fetching
+     * @param limit how many results to return
+     * @param aroundPlayer are the results related to the player
+     * @param friendsOnly should the results contain friends only
+     *
+     * @return array of leaderboard entries
+     * @throws IOException on error cases throws an IOException
      */
     public Array<ILeaderBoardEntry> fetchLeaderboardSync(String leaderBoardId, int limit, boolean aroundPlayer,
                                                          boolean friendsOnly) throws IOException {
@@ -796,7 +852,7 @@ public class GpgsClient implements IGameServiceClient {
         if (leaderBoardId == null)
             return null;
 
-        Array<ILeaderBoardEntry> result = new Array<ILeaderBoardEntry>();
+        Array<ILeaderBoardEntry> result = new Array<>();
         Leaderboard lb = GApiGateway.games.leaderboards().get(leaderBoardId).execute();
 
         // XXX no longer LB info ...

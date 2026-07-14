@@ -3,6 +3,8 @@ package de.golfgl.gdxgamesvcs;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 
+import de.golfgl.gdxgamesvcs.country.ICountryCodeResponseListener;
+import de.golfgl.gdxgamesvcs.friend.IFriendsDataResponseListener;
 import org.robovm.apple.foundation.NSArray;
 import org.robovm.apple.foundation.NSData;
 import org.robovm.apple.foundation.NSError;
@@ -24,6 +26,7 @@ import de.golfgl.gdxgamesvcs.gamestate.IFetchGameStatesListResponseListener;
 import de.golfgl.gdxgamesvcs.gamestate.ILoadGameStateResponseListener;
 import de.golfgl.gdxgamesvcs.gamestate.ISaveGameStateResponseListener;
 import de.golfgl.gdxgamesvcs.leaderboard.IFetchLeaderBoardEntriesResponseListener;
+import de.golfgl.gdxgamesvcs.player.IPlayerDataResponseListener;
 
 /**
  * Apple Game Center implementation
@@ -46,7 +49,11 @@ public class GameCenterClient implements IGameServiceClient {
 		return GAMESERVICE_ID;
 	}
 
-	@Override
+    @Override public String getServerAuthCode() {
+        return "";
+    }
+
+    @Override
 	public void setListener(IGameServiceListener gsListener) {
 		this.gsListener = gsListener;
 	}
@@ -122,6 +129,11 @@ public class GameCenterClient implements IGameServiceClient {
 	}
 
 	@Override
+	public boolean getPlayerData(IPlayerDataResponseListener callback) {
+		return false;
+	}
+
+	@Override
 	public boolean isSessionActive() {
 		return GKLocalPlayer.getLocalPlayer().isAuthenticated();
 	}
@@ -165,7 +177,19 @@ public class GameCenterClient implements IGameServiceClient {
 		viewController.presentViewController(gameCenterView, true, null);
 	}
 
-	@Override
+    @Override public void showFriends(IFriendsDataResponseListener callback) throws GameServiceException {
+
+    }
+
+    @Override public void showPlayerProfile(String playerId) throws GameServiceException {
+
+    }
+
+    @Override public void showPlayerProfileWithHints(String otherPlayerId, String otherPlayerInGameName, String currentPlayerInGameName) throws GameServiceException {
+
+    }
+
+    @Override
 	public boolean fetchAchievements(IFetchAchievementsResponseListener callback) {
 		return false;
 	}
@@ -190,9 +214,23 @@ public class GameCenterClient implements IGameServiceClient {
 	}
 
 	@Override
-	public boolean fetchLeaderboardEntries(String leaderBoardId, int limit, boolean relatedToPlayer, IFetchLeaderBoardEntriesResponseListener callback) {
+	public boolean incrementLeaderboard(String leaderboardId, long score) {
 		return false;
 	}
+
+	@Override
+	public boolean fetchLeaderboardEntries(String leaderBoardId, int limit, boolean relatedToPlayer,
+										   IFetchLeaderBoardEntriesResponseListener callback) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean fetchLeaderboardEntries(String leaderBoardId, int limit, boolean relatedToPlayer,
+										   IFetchLeaderBoardEntriesResponseListener callback,
+										   int timespan, int collection) {
+		throw new UnsupportedOperationException();
+	}
+
 
 	@Override
 	public boolean submitEvent(String eventId, int increment) {
@@ -355,6 +393,10 @@ public class GameCenterClient implements IGameServiceClient {
         return true;
     }
 
+    @Override public void fetchCountryCode(ICountryCodeResponseListener callback) {
+
+    }
+
     @Override
 	public boolean isFeatureSupported(GameServiceFeature feature) {
 		switch (feature) {
@@ -375,8 +417,8 @@ public class GameCenterClient implements IGameServiceClient {
 			case ShowAllLeaderboardsUI:
 				return true;
 
-            case PlayerLogOut:
-                return false;
+			case PlayerLogOut:
+				return false;
 
 			default:
 				return false;

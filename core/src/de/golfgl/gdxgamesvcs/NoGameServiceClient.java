@@ -3,10 +3,13 @@ package de.golfgl.gdxgamesvcs;
 import com.badlogic.gdx.Gdx;
 
 import de.golfgl.gdxgamesvcs.achievement.IFetchAchievementsResponseListener;
+import de.golfgl.gdxgamesvcs.country.ICountryCodeResponseListener;
+import de.golfgl.gdxgamesvcs.friend.IFriendsDataResponseListener;
 import de.golfgl.gdxgamesvcs.gamestate.IFetchGameStatesListResponseListener;
 import de.golfgl.gdxgamesvcs.gamestate.ILoadGameStateResponseListener;
 import de.golfgl.gdxgamesvcs.gamestate.ISaveGameStateResponseListener;
 import de.golfgl.gdxgamesvcs.leaderboard.IFetchLeaderBoardEntriesResponseListener;
+import de.golfgl.gdxgamesvcs.player.IPlayerDataResponseListener;
 
 /**
  * NoGameServiceClient is an implementation for IGameServiceClient available on any platform.
@@ -33,6 +36,11 @@ public class NoGameServiceClient implements IGameServiceClient {
     @Override
     public String getGameServiceId() {
         return GAMESERVICE_ID;
+    }
+
+    @Override
+    public String getServerAuthCode() {
+        return null;
     }
 
     @Override
@@ -87,6 +95,11 @@ public class NoGameServiceClient implements IGameServiceClient {
     }
 
     @Override
+    public boolean getPlayerData(IPlayerDataResponseListener callback) {
+        return false;
+    }
+
+    @Override
     public boolean isSessionActive() {
         return connected;
     }
@@ -109,6 +122,21 @@ public class NoGameServiceClient implements IGameServiceClient {
     }
 
     @Override
+    public void showFriends(IFriendsDataResponseListener callback) {
+        Gdx.app.log(GAMESERVICE_ID, "Show friends called.");
+    }
+
+    @Override
+    public void showPlayerProfile(String playerId) {
+        Gdx.app.log(GAMESERVICE_ID, "Show player profile called: " + playerId);
+    }
+
+    @Override
+    public void showPlayerProfileWithHints(String otherPlayerId, String otherPlayerInGameName, String currentPlayerInGameName) {
+        Gdx.app.log(GAMESERVICE_ID, "Show player profile with hints called: " + otherPlayerId + ", " + otherPlayerInGameName + ", " + currentPlayerInGameName);
+    }
+
+    @Override
     public boolean fetchAchievements(IFetchAchievementsResponseListener callback) {
         return false;
     }
@@ -121,8 +149,19 @@ public class NoGameServiceClient implements IGameServiceClient {
     }
 
     @Override
+    public boolean incrementLeaderboard(String leaderboardId, long score) {
+        return false;
+    }
+
+    @Override
     public boolean fetchLeaderboardEntries(String leaderBoardId, int limit, boolean relatedToPlayer,
                                            IFetchLeaderBoardEntriesResponseListener callback) {
+        return false;
+    }
+
+    @Override
+    public boolean fetchLeaderboardEntries(String leaderBoardId, int limit, boolean relatedToPlayer,
+                                           IFetchLeaderBoardEntriesResponseListener callback, int timespan, int collection) {
         return false;
     }
 
@@ -165,6 +204,11 @@ public class NoGameServiceClient implements IGameServiceClient {
     @Override
     public boolean fetchGameStates(IFetchGameStatesListResponseListener callback) {
         return false;
+    }
+
+    @Override
+    public void fetchCountryCode(ICountryCodeResponseListener callback) {
+        Gdx.app.log(GAMESERVICE_ID, "Fetch country code called.");
     }
 
     @Override
