@@ -1095,10 +1095,14 @@ public class GpgsClient implements
     @Override
     public void onBillingSetupFinished(@NonNull BillingResult billingResult) {
         if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
-            Gdx.app.log(GAMESERVICE_ID, "Billing service connected");
+            if (Gdx.app!=null) {
+                Gdx.app.log(GAMESERVICE_ID, "Billing service connected");
+            }
             billingClientReady = true;
         } else {
-            Gdx.app.error(GAMESERVICE_ID, "Billing service setup failed: " + billingResult.getDebugMessage());
+            if (Gdx.app!=null) {
+                Gdx.app.error(GAMESERVICE_ID, "Billing service setup failed: " + billingResult.getDebugMessage());
+            }
             billingClientReady = false;
         }
     }
