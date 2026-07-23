@@ -870,9 +870,9 @@ public class GameJoltClient implements IGameServiceClient {
         return true;
     }
 
-    @Override public void fetchCountryCode(ICountryCodeResponseListener callback) {
+    /*@Override public void fetchCountryCode(ICountryCodeResponseListener callback) {
 
-    }
+    }*/
 
     @Override
     public boolean isFeatureSupported(GameServiceFeature feature) {

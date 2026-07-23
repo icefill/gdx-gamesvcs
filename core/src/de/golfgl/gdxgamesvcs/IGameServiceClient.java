@@ -339,6 +339,7 @@ public interface IGameServiceClient {
      */
     boolean fetchGameStates(IFetchGameStatesListResponseListener callback);
 
+
     /**
      * Fetch current player's country code via Billing API BillingConfig
      *
@@ -346,7 +347,7 @@ public interface IGameServiceClient {
      * @throws UnsupportedOperationException if not supported by game service client, so check
      *                                      {@link #isFeatureSupported(GameServiceFeature)} prior to call this method.
      */
-    void fetchCountryCode(ICountryCodeResponseListener callback);
+    //void fetchCountryCode(ICountryCodeResponseListener callback);
 
     /**
      * Queries if a certain feature is available for this Game Service

@@ -663,9 +663,9 @@ public class HuaweiGameServicesClient implements IGameServiceClient, AndroidEven
         return false;
     }
 
-    @Override public void fetchCountryCode(ICountryCodeResponseListener callback) {
+    /*@Override public void fetchCountryCode(ICountryCodeResponseListener callback) {
 
-    }
+    }*/
 
     @Override
     public boolean isFeatureSupported(GameServiceFeature feature) {

@@ -11,14 +11,14 @@ import android.view.Gravity;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.android.billingclient.api.BillingClient;
+/*import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingClientStateListener;
 import com.android.billingclient.api.BillingConfig;
 import com.android.billingclient.api.BillingConfigResponseListener;
 import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.GetBillingConfigParams;
 import com.android.billingclient.api.Purchase;
-import com.android.billingclient.api.PurchasesUpdatedListener;
+import com.android.billingclient.api.PurchasesUpdatedListener;*/
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidEventListener;
@@ -87,9 +87,9 @@ import de.golfgl.gdxgamesvcs.player.PlayerData;
 
 public class GpgsClient implements
         IGameServiceClient,
-        AndroidEventListener,
+        AndroidEventListener/*,
         BillingClientStateListener,
-        PurchasesUpdatedListener {
+        PurchasesUpdatedListener*/ {
 
     public static final String GAMESERVICE_ID = IGameServiceClient.GS_GOOGLEPLAYGAMES_ID;
 
@@ -102,11 +102,11 @@ public class GpgsClient implements
 
     protected Activity myContext;
 
-    private BillingClient mBillingClient;
+    //private BillingClient mBillingClient;
 
     protected boolean forceReload;
 
-    private boolean billingClientReady;
+    //private boolean billingClientReady;
     private boolean isConnected;
     private boolean isInitialized;
 
@@ -167,9 +167,9 @@ public class GpgsClient implements
         // We need to receive onActivityResult
         context.addAndroidEventListener(this);
 
-        billingClientReady = false;
-        mBillingClient = BillingClient.newBuilder(myContext).enablePendingPurchases().setListener(this).build();
-        mBillingClient.startConnection(this);
+        //billingClientReady = false;
+        //mBillingClient = BillingClient.newBuilder(myContext).enablePendingPurchases().setListener(this).build();
+        //mBillingClient.startConnection(this);
 
         isConnected = false;
         PlayGamesSdk.initialize(myContext);
@@ -198,9 +198,9 @@ public class GpgsClient implements
         // We need to receive onActivityResult
         context.addAndroidEventListener(this);
 
-        billingClientReady = false;
-        mBillingClient = BillingClient.newBuilder(myContext).enablePendingPurchases().setListener(this).build();
-        mBillingClient.startConnection(this);
+        //billingClientReady = false;
+        //mBillingClient = BillingClient.newBuilder(myContext).enablePendingPurchases().setListener(this).build();
+        //mBillingClient.startConnection(this);
 
         isConnected = false;
         PlayGamesSdk.initialize(myContext);
@@ -983,6 +983,7 @@ public class GpgsClient implements
         }
     }
 
+    /*
     @Override
     public void fetchCountryCode(ICountryCodeResponseListener callback) {
         if (!isSessionActive()) {
@@ -1015,7 +1016,7 @@ public class GpgsClient implements
                         }
                     }
                 });
-    }
+    }*/
 
     /**
      * Conflict resolution for when Snapshots are opened. Returns a Task.
@@ -1086,6 +1087,7 @@ public class GpgsClient implements
         }
     }
 
+    /*
     @Override
     public void onBillingServiceDisconnected() {
         Gdx.app.error(GAMESERVICE_ID, "Billing service disconnected");
@@ -1110,5 +1112,5 @@ public class GpgsClient implements
     @Override
     public void onPurchasesUpdated(@NonNull BillingResult billingResult, @Nullable List<Purchase> list) {
         Gdx.app.log(GAMESERVICE_ID, "Purchases updated: " + billingResult.getResponseCode());
-    }
+    }*/
 }

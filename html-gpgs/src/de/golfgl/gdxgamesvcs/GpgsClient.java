@@ -732,9 +732,9 @@ public class GpgsClient implements IGameServiceClient {
         return true;
     }
 
-    @Override public void fetchCountryCode(ICountryCodeResponseListener callback) {
+    /*@Override public void fetchCountryCode(ICountryCodeResponseListener callback) {
 
-    }
+    }*/
 
     private native void nativeFetchGameStates(IFetchGameStatesListResponseListener callback) /*-{
         $wnd.gapi.client.request({

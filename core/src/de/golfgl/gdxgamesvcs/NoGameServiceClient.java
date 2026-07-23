@@ -206,10 +206,10 @@ public class NoGameServiceClient implements IGameServiceClient {
         return false;
     }
 
-    @Override
+    /*@Override
     public void fetchCountryCode(ICountryCodeResponseListener callback) {
         Gdx.app.log(GAMESERVICE_ID, "Fetch country code called.");
-    }
+    }*/
 
     @Override
     public boolean isFeatureSupported(GameServiceFeature feature) {

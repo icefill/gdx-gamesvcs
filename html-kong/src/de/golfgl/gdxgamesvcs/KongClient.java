@@ -344,9 +344,9 @@ public class KongClient implements IGameServiceClient {
         throw new UnsupportedOperationException();
     }
 
-    @Override public void fetchCountryCode(ICountryCodeResponseListener callback) {
+    /*@Override public void fetchCountryCode(ICountryCodeResponseListener callback) {
 
-    }
+    }*/
 
     @Override
     public boolean isFeatureSupported(GameServiceFeature feature) {

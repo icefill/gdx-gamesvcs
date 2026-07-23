@@ -522,10 +522,10 @@ public class GpgsClient implements IGameServiceClient {
         return connected;
     }
 
-    @Override
+    /*@Override
     public void fetchCountryCode(ICountryCodeResponseListener callback) {
 
-    }
+    }*/
 
     /**
      * Blocking version of {@link #fetchGameStatesSync()}
